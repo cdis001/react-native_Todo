@@ -1,63 +1,64 @@
-import React from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  StatusBar, 
-  TextInput, 
+import React from "react"
+import {
+  StyleSheet,
+  Text,
+  View,
+  StatusBar,
+  TextInput,
   Dimensions,
   Platform,
-  ScrollView } from 'react-native';
-  import ToDo from "./ToDo";
+  ScrollView
+} from "react-native"
+import ToDo from "./ToDo"
 
-const { height, width } = Dimensions.get("window");
+const { height, width } = Dimensions.get("window")
 
 export default class App extends React.Component {
   state = {
     newToDo: ""
-  };
+  }
   render() {
-    const { newToDo } = this.state;
+    const { newToDo } = this.state
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content"/>
+        <StatusBar barStyle="light-content" />
         <Text style={styles.title}>To Do List</Text>
         <View style={styles.card}>
-          <TextInput 
-            style={styles.input} 
-            placeholder={"New To Do"} 
-            value={newToDo} 
+          <TextInput
+            style={styles.input}
+            placeholder={"New To Do"}
+            value={newToDo}
             onChangeText={this._controlNewToDo}
-            placeholderTextColor={'#999'}
+            placeholderTextColor={"#999"}
             returnKeyType={"done"}
             autoCorrect={false}
-            />
-            <ScrollView contentContainerStyle={styles.todos}>
-              <ToDo/>
-            </ScrollView>
+          />
+          <ScrollView contentContainerStyle={styles.todos}>
+            <ToDo text="Hi i'm a TODO!" />
+          </ScrollView>
         </View>
       </View>
-    );
+    )
   }
   _controlNewToDo = text => {
     this.setState({
       newToDo: text
-    });
-  };
+    })
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#99D8CF',
-    alignItems: 'center',
+    backgroundColor: "#99D8CF",
+    alignItems: "center"
   },
   title: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 30,
     marginTop: 60,
     fontWeight: "300",
-    marginBottom: 30 
+    marginBottom: 30
   },
   card: {
     backgroundColor: "white",
@@ -89,4 +90,4 @@ const styles = StyleSheet.create({
   todos: {
     alignItems: "center"
   }
-});
+})
