@@ -1,9 +1,22 @@
 import React, { Component } from "react"
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, TextInput } from "react-native"
+import PropTypes from "prop-types"
 
 const { width, height } = Dimensions.get("window")
 
-export default class ToDo extends Component {
+export default class ToDo extends React.Component {
+  constructor(props) {
+    super(props)
+    // this.state = {
+    //   isEditing: false,
+    //   toDoValue: props.text
+    // }
+    console.log(props)
+  }
+  static propTypes = {
+    text: PropTypes.string.isRequired,
+    isCompleted: PropTypes.bool.isRequired
+  }
   state = {
     isEditing: false,
     isCompleted: false,
@@ -26,8 +39,8 @@ export default class ToDo extends Component {
           {isEditing ? (
             <TextInput
               style={[
-                styles.input,
                 styles.text,
+                styles.input,
                 isCompleted ? styles.completedText : styles.uncompletedText
               ]}
               value={toDoValue}
@@ -77,11 +90,8 @@ export default class ToDo extends Component {
     })
   }
   _startEditing = () => {
-    const { text } = this.props
-    this.setState({
-      isEditing: true,
-      toDoValue: text
-    })
+    // const { text } = this.props
+    this.setState({ isEditing: true, toDoValue: text })
   }
   _finishEditing = () => {
     this.setState({
@@ -89,9 +99,7 @@ export default class ToDo extends Component {
     })
   }
   _controllInput = text => {
-    this.setState({
-      toDoValue: text
-    })
+    this.setState({ toDoValue: text })
   }
 }
 
@@ -109,7 +117,8 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     borderWidth: 3,
-    marginRight: 20
+    marginRight: 20,
+    marginLeft: 10
   },
   completedCircle: {
     borderColor: "#bbb"
@@ -132,18 +141,17 @@ const styles = StyleSheet.create({
   column: {
     flexDirection: "row",
     alignItems: "center",
-    width: width / 2,
-    justifyContent: "space-between"
+    width: width / 2
   },
   actions: {
     flexDirection: "row"
   },
   actionContainer: {
-    marginVertical: 10,
+    marginVertical: 20,
     marginHorizontal: 10
   },
   input: {
-    marginVertical: 15,
+    paddingTop: 0,
     width: width / 2
   }
 })
