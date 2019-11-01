@@ -19,5 +19,21 @@
   "devDependencies": {
     "babel-preset-expo": "^7.1.0"
   },
-  "private": true
+  "private": true,
+  "name": "todo_app",
+  "description": "readme",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cdis001/react-native_todo.git"
+  },
+  "keywords": [
+    "todo"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cdis001/react-native_todo/issues"
+  },
+  "homepage": "https://github.com/cdis001/react-native_todo#readme"
 }

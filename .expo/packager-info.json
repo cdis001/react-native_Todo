@@ -2,8 +2,8 @@
   "devToolsPort": 19002,
   "expoServerPort": 19000,
   "packagerPort": 19001,
-  "packagerPid": 12094,
-  "expoServerNgrokUrl": "https://vg-3kc.anonymous.todo-app.exp.direct",
-  "packagerNgrokUrl": "https://packager.vg-3kc.anonymous.todo-app.exp.direct",
-  "ngrokPid": 12105
+  "packagerPid": 17421,
+  "expoServerNgrokUrl": "https://vg-3kc.cdis.todo-app.exp.direct",
+  "packagerNgrokUrl": "https://packager.vg-3kc.cdis.todo-app.exp.direct",
+  "ngrokPid": 17445
 }
