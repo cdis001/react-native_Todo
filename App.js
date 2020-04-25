@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState, useEffect } from 'react'
 import {
   StyleSheet,
   Text,
@@ -8,215 +8,166 @@ import {
   Dimensions,
   Platform,
   ScrollView,
-  AsyncStorage
-} from "react-native"
-import { AppLoading } from "expo"
-import ToDo from "./ToDo"
-import uuidv1 from "uuid/v1"
+  AsyncStorage,
+} from 'react-native'
+import { AppLoading } from 'expo'
 
-const { height, width } = Dimensions.get("window")
+import ToDo from './ToDo'
 
-export default class App extends React.Component {
-  state = {
-    newToDo: "",
-    loadedToDos: false,
-    toDos: {}
-  }
-  componentDidMount = () => {
-    this._loadToDos()
-  }
-  render() {
-    const { newToDo, loadedToDos, toDos } = this.state
-    if (!loadedToDos) {
-      return <AppLoading />
-    }
-    return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <Text style={styles.title}>To Do List</Text>
-        <View style={styles.card}>
-          <TextInput
-            style={styles.input}
-            placeholder={"New To Do"}
-            value={newToDo}
-            onChangeText={this._controlNewToDo}
-            placeholderTextColor={"#999"}
-            returnKeyType={"done"}
-            autoCorrect={false}
-            onSubmitEditing={this._addToDo}
-            underlineColorAndroid={"transparent"}
-          />
-          <ScrollView contentContainerStyle={styles.todos}>
-            {Object.values(toDos)
-              .reverse()
-              .map(toDo => (
-                <ToDo
-                  key={toDo.id}
-                  deleteToDo={this._deleteToDo}
-                  completeToDo={this._completeToDo}
-                  uncompleteToDo={this._uncompleteToDo}
-                  updateToDo={this._updateToDo}
-                  {...toDo}
-                />
-              ))}
-          </ScrollView>
-        </View>
-      </View>
-    )
-  }
-  _controlNewToDo = text => {
-    this.setState({
-      newToDo: text
-    })
-  }
-  _loadToDos = async () => {
+const { height, width } = Dimensions.get('window')
+
+const App = () => {
+  const [newToDo, setNewToDo] = useState('')
+  const [loadedToDos, setLoadedToDos] = useState(false)
+  const [toDos, setToDos] = useState({})
+
+  useEffect(() => {
+    _loadToDos()
+  }, [])
+
+  const _loadToDos = async () => {
     try {
-      const toDos = await AsyncStorage.getItem("toDos")
+      // const toDos = await AsyncStorage.clear()
+      const toDos = await AsyncStorage.getItem('toDos')
       const parsedToDos = JSON.parse(toDos)
-      this.setState({
-        loadedToDos: true,
-        toDos: parsedToDos || {}
-      })
+      const loadedToDos = parsedToDos || {}
+      setLoadedToDos(true)
+      setToDos(loadedToDos)
     } catch (e) {
       console.log(e)
     }
   }
-  _addToDo = () => {
-    const { newToDo } = this.state
-    if (newToDo !== "") {
-      this.setState({
-        newToDo: ""
-      })
-      this.setState(prevState => {
-        const ID = uuidv1()
-        const newToDoObject = {
-          [ID]: {
-            id: ID,
-            isCompleted: false,
-            text: newToDo,
-            createdAt: Date.now()
-          }
-        }
-        const newState = {
-          ...prevState,
-          newToDo: "",
-          toDos: {
-            ...prevState.toDos,
-            ...newToDoObject
-          }
-        }
-        this._saveToDos(newState.toDos)
-        return { ...newState }
-      })
+
+  const _addToDo = () => {
+    if (newToDo !== '') {
+      setNewToDo('')
+      const ID = Math.random().toString()
+      const newToDoObject = {
+        ...toDos,
+        [ID]: {
+          id: ID,
+          isCompleted: false,
+          text: newToDo,
+          createdAt: Date.now(),
+        },
+      }
+
+      setToDos(newToDoObject)
+
+      _saveToDos(toDos)
     }
   }
-  _deleteToDo = id => {
-    this.setState(prevState => {
-      const toDos = prevState.toDos
-      delete toDos[id]
-      const newState = {
-        ...prevState,
-        ...toDos
-      }
-      this._saveToDos(newState.toDos)
-      return { ...newState }
-    })
+
+  const _deleteToDo = (id) => {
+    const temp = { ...toDos }
+    delete temp[id]
+    setToDos(temp)
+
+    _saveToDos(toDos)
   }
-  _uncompleteToDo = id => {
-    this.setState(prevState => {
-      const newState = {
-        ...prevState,
-        toDos: {
-          ...prevState.toDos,
-          [id]: {
-            ...prevState.toDos[id],
-            isCompleted: false
-          }
-        }
-      }
-      this._saveToDos(newState.toDos)
-      return { ...newState }
-    })
+
+  const _onCheckedToDo = (id) => {
+    const temp = { ...toDos }
+    const newToDo = temp[id]
+    newToDo.isCompleted = !newToDo.isCompleted
+
+    setToDos(temp)
+
+    _saveToDos(toDos)
   }
-  _completeToDo = id => {
-    this.setState(prevState => {
-      const newState = {
-        ...prevState,
-        toDos: {
-          ...prevState.toDos,
-          [id]: {
-            ...prevState.toDos[id],
-            isCompleted: true
-          }
-        }
-      }
-      this._saveToDos(newState.toDos)
-      return { ...newState }
-    })
+
+  const _updateToDo = (id, text) => {
+    const temp = { ...toDos }
+    const updateToDo = temp[id]
+    updateToDo.text = text
+
+    setToDos(temp)
   }
-  _updateToDo = (id, text) => {
-    this.setState(prevState => {
-      const newState = {
-        ...prevState,
-        toDos: {
-          ...prevState.toDos,
-          [id]: {
-            ...prevState.toDos[id],
-            text: text
-          }
-        }
-      }
-      this._saveToDos(newState.toDos)
-      return { ...newState }
-    })
+
+  const _saveToDos = (newToDos) => {
+    AsyncStorage.setItem('toDos', JSON.stringify(newToDos))
   }
-  _saveToDos = newToDos => {
-    const saveToDos = AsyncStorage.setItem("toDos", JSON.stringify(newToDos))
-    console.log()
+  if (!loadedToDos) {
+    return <AppLoading />
   }
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <Text style={styles.title}>To Do List</Text>
+      <View style={styles.card}>
+        <TextInput
+          style={styles.input}
+          placeholder={'New To Do'}
+          value={newToDo}
+          onChangeText={(text) => setNewToDo(text)}
+          placeholderTextColor={'#999'}
+          returnKeyType={'done'}
+          autoCorrect={false}
+          onSubmitEditing={() => _addToDo()}
+          underlineColorAndroid={'transparent'}
+        />
+        <ScrollView contentContainerStyle={styles.todos}>
+          {Object.values(toDos)
+            .reverse()
+            .map((toDo) => (
+              <ToDo
+                key={toDo.id}
+                deleteToDo={_deleteToDo}
+                uncompleteToDo={_onCheckedToDo}
+                completeToDo={_onCheckedToDo}
+                updateToDo={_updateToDo}
+                {...toDo}
+              />
+            ))}
+        </ScrollView>
+      </View>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#99D8CF",
-    alignItems: "center"
+    backgroundColor: '#99D8CF',
+    alignItems: 'center',
   },
   title: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 30,
     marginTop: 60,
-    fontWeight: "300",
-    marginBottom: 30
+    fontWeight: '300',
+    marginBottom: 30,
   },
   card: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     flex: 1,
     width: width - 25,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     ...Platform.select({
       ios: {
-        shadowColor: "rgb(50, 50, 50)",
+        shadowColor: 'rgb(50, 50, 50)',
         shadowOpacity: 0.5,
         shadowRadius: 5,
         shadowOffset: {
           height: -1,
-          width: 0
-        }
+          width: 0,
+        },
       },
       android: {
-        elevation: 3
-      }
-    })
+        elevation: 3,
+      },
+    }),
   },
   input: {
     padding: 20,
-    borderBottomColor: "#bbb",
+    borderBottomColor: '#bbb',
     borderBottomWidth: 1,
-    fontSize: 25
+    fontSize: 25,
   },
   todos: {
-    alignItems: "center"
-  }
+    alignItems: 'center',
+  },
 })
+
+export default App
