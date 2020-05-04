@@ -27,7 +27,6 @@ const App = () => {
 
   const _loadToDos = async () => {
     try {
-      // const toDos = await AsyncStorage.clear()
       const toDos = await AsyncStorage.getItem('toDos')
       const parsedToDos = JSON.parse(toDos)
       const loadedToDos = parsedToDos || {}
@@ -54,16 +53,17 @@ const App = () => {
 
       setToDos(newToDoObject)
 
-      _saveToDos(toDos)
+      _saveToDos(newToDoObject)
     }
   }
 
   const _deleteToDo = (id) => {
     const temp = { ...toDos }
     delete temp[id]
+
     setToDos(temp)
 
-    _saveToDos(toDos)
+    _saveToDos(temp)
   }
 
   const _onCheckedToDo = (id) => {
@@ -73,7 +73,7 @@ const App = () => {
 
     setToDos(temp)
 
-    _saveToDos(toDos)
+    _saveToDos(temp)
   }
 
   const _updateToDo = (id, text) => {
@@ -82,6 +82,8 @@ const App = () => {
     updateToDo.text = text
 
     setToDos(temp)
+
+    _saveToDos(temp)
   }
 
   const _saveToDos = (newToDos) => {
