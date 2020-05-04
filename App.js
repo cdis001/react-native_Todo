@@ -115,7 +115,7 @@ const App = () => {
               <ToDo
                 key={toDo.id}
                 deleteToDo={_deleteToDo}
-                uncompleteToDo={_onCheckedToDo}
+                onCheckedToDo={_onCheckedToDo}
                 completeToDo={_onCheckedToDo}
                 updateToDo={_updateToDo}
                 {...toDo}

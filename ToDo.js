@@ -1,131 +1,135 @@
-import React, { Component } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, TextInput } from "react-native"
-import PropTypes from "prop-types"
+import React, { useState, useEffect } from 'react'
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  TextInput,
+} from 'react-native'
+import PropTypes from 'prop-types'
 
-const { width, height } = Dimensions.get("window")
+const { width, height } = Dimensions.get('window')
 
-export default class ToDo extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      isEditing: false,
-      toDoValue: props.text
-    }
-  }
-  static propTypes = {
+const ToDo = ({
+  deleteToDo,
+  onCheckedToDo,
+  completeToDo,
+  updateToDo,
+  id,
+  isCompleted,
+  text,
+  createdAt,
+}) => {
+  const [isEditing, setIsEditing] = useState(false)
+  const [toDoValue, setToDoValue] = useState('')
+
+  useEffect(() => {
+    setToDoValue(text)
+  }, [])
+
+  propTypes = {
     text: PropTypes.string.isRequired,
     isCompleted: PropTypes.bool.isRequired,
     deleteToDo: PropTypes.func.isRequired,
     id: PropTypes.string.isRequired,
     completeToDo: PropTypes.func.isRequired,
-    uncompleteToDo: PropTypes.func.isRequired,
-    updateToDo: PropTypes.func.isRequired
+    onCheckedToDo: PropTypes.func.isRequired,
+    updateToDo: PropTypes.func.isRequired,
   }
-  state = {
-    isEditing: false,
-    toDoValue: ""
+
+  const _toggleComplete = (event) => {
+    event.stopPropagation()
+    onCheckedToDo(id)
   }
-  render() {
-    const { isEditing, toDoValue } = this.state
-    const { text, deleteToDo, id, isCompleted } = this.props
-    return (
-      <View style={styles.container}>
-        <View style={styles.column}>
-          <TouchableOpacity onPress={this._toggleComplete}>
-            <View
-              style={[
-                styles.circle,
-                isCompleted ? styles.completedCircle : styles.uncompletedCircle
-              ]}
-            />
-          </TouchableOpacity>
-          {isEditing ? (
-            <TextInput
-              style={[
-                styles.text,
-                styles.input,
-                isCompleted ? styles.completedText : styles.uncompletedText
-              ]}
-              value={toDoValue}
-              multiline={true}
-              onChangeText={this._controllInput}
-              returnKeyType={"done"}
-              onBlur={this._finishEditing}
-              underlineColorAndroid={"transparent"}
-            />
-          ) : (
-            <Text
-              style={[styles.text, isCompleted ? styles.completedText : styles.uncompletedText]}
-            >
-              {text}
-            </Text>
-          )}
-        </View>
+  const _startEditing = (event) => {
+    event.stopPropagation()
+    setIsEditing(true)
+  }
+  const _finishEditing = (event) => {
+    event.stopPropagation()
+    updateToDo(id, toDoValue)
+    setIsEditing(false)
+  }
+  const _controllInput = (text) => {
+    setToDoValue(text)
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.column}>
+        <TouchableOpacity onPress={_toggleComplete}>
+          <View
+            style={[
+              styles.circle,
+              isCompleted ? styles.completedCircle : styles.uncompletedCircle,
+            ]}
+          />
+        </TouchableOpacity>
         {isEditing ? (
-          <View style={styles.actions}>
-            <TouchableOpacity onPressOut={this._finishEditing}>
-              <View style={styles.actionContainer}>
-                <Text style={styles.actionText}>✅</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+          <TextInput
+            style={[
+              styles.text,
+              styles.input,
+              isCompleted ? styles.completedText : styles.uncompletedText,
+            ]}
+            value={toDoValue}
+            multiline={true}
+            onChangeText={_controllInput}
+            returnKeyType={'done'}
+            onBlur={_finishEditing}
+            underlineColorAndroid={'transparent'}
+          />
         ) : (
-          <View style={styles.actions}>
-            <TouchableOpacity onPressOut={this._startEditing}>
-              <View style={styles.actionContainer}>
-                <Text style={styles.actionText}>✏️</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPressOut={event => {
-                event.stopPropagation
-                deleteToDo(id)
-              }}
-            >
-              <View style={styles.actionContainer}>
-                <Text style={styles.actionText}>❌</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+          <Text
+            style={[
+              styles.text,
+              isCompleted ? styles.completedText : styles.uncompletedText,
+            ]}
+          >
+            {text}
+          </Text>
         )}
       </View>
-    )
-  }
-  _toggleComplete = event => {
-    event.stopPropagation()
-    const { isCompleted, completeToDo, uncompleteToDo, id } = this.props
-    if (isCompleted) {
-      uncompleteToDo(id)
-    } else {
-      completeToDo(id)
-    }
-  }
-  _startEditing = event => {
-    event.stopPropagation()
-    this.setState({ isEditing: true })
-  }
-  _finishEditing = event => {
-    event.stopPropagation()
-    const { toDoValue } = this.state
-    const { id, updateToDo } = this.props
-    updateToDo(id, toDoValue)
-    this.setState({
-      isEditing: false
-    })
-  }
-  _controllInput = text => {
-    this.setState({ toDoValue: text })
-  }
+      {isEditing ? (
+        <View style={styles.actions}>
+          <TouchableOpacity onPressOut={_finishEditing}>
+            <View style={styles.actionContainer}>
+              <Text style={styles.actionText}>✅</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.actions}>
+          <TouchableOpacity onPressOut={_startEditing}>
+            <View style={styles.actionContainer}>
+              <Text style={styles.actionText}>✏️</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPressOut={(event) => {
+              event.stopPropagation
+              deleteToDo(id)
+            }}
+          >
+            <View style={styles.actionContainer}>
+              <Text style={styles.actionText}>❌</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     width: width - 50,
-    borderBottomColor: "#bbb",
+    borderBottomColor: '#bbb',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between"
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   circle: {
     width: 30,
@@ -133,40 +137,42 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     borderWidth: 3,
     marginRight: 20,
-    marginLeft: 10
+    marginLeft: 10,
   },
   completedCircle: {
-    borderColor: "#bbb"
+    borderColor: '#bbb',
   },
   uncompletedCircle: {
-    borderColor: "#73E1A1"
+    borderColor: '#73E1A1',
   },
   text: {
-    fontWeight: "600",
+    fontWeight: '600',
     fontSize: 20,
-    marginVertical: 20
+    marginVertical: 20,
   },
   completedText: {
-    color: "#bbb",
-    textDecorationLine: "line-through"
+    color: '#bbb',
+    textDecorationLine: 'line-through',
   },
   uncompletedText: {
-    color: "#353535"
+    color: '#353535',
   },
   column: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: width / 2
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: width / 2,
   },
   actions: {
-    flexDirection: "row"
+    flexDirection: 'row',
   },
   actionContainer: {
     marginVertical: 20,
-    marginHorizontal: 10
+    marginHorizontal: 10,
   },
   input: {
     paddingTop: 0,
-    width: width / 2
-  }
+    width: width / 2,
+  },
 })
+
+export default ToDo
